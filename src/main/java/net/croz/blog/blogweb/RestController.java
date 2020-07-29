@@ -21,14 +21,29 @@ public class RestController {
         postService.save(
                 new Post(
                         new Author(
-                                "Siba",
-                                "China",
-                                "nez@gmail.com"),
-                        "What to do",
-                        "The best thing to do is to do something."
+                                "Pau",
+                                "Pechkoo",
+                                "pau@gmail.com"),
+                        "Kako smrsaviti",
+                        "Ovaj clanak ce Vam sve objasniti."
                 )
         );
-        return "post added";
+        postService.save(
+                new Post(
+                        new Author(
+                                "Iva",
+                                "Ivic",
+                                "iva@gmail.com"),
+                        "Lorem Ipsum",
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
+                                "Praesent feugiat sem non imperdiet tempus. Pellentesque nec " +
+                                "scelerisque urna. Morbi aliquam ex sed quam rutrum, vitae iaculis " +
+                                "sem rutrum. Nulla ac eros tincidunt, ultrices tellus ut, hendrerit dui." +
+                                " Ut eu ornare elit, id laoreet nisl. Ut consectetur enim commodo mauris varius imperdiet." +
+                                " Nulla sem sapien, viverra sed ligula vitae, aliquam blandit velit."
+                )
+        );
+        return "posts added";
     }
 
     @GetMapping("/posts")

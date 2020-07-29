@@ -1,6 +1,10 @@
 package net.croz.blog.blogweb;
 
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,15 +16,16 @@ public class Tag {
     @Column(name = "id")
     private int id;
 
-    @OneToMany(fetch = FetchType.LAZY,
+    @OneToMany(mappedBy = "tag", fetch = FetchType.LAZY,
             cascade = {CascadeType.DETACH,
             CascadeType.MERGE,
             CascadeType.PERSIST,
             CascadeType.REFRESH})
-    @JoinColumn(name = "post_id")
+    @NotFound(action = NotFoundAction.IGNORE)
     private List<Post> posts;
 
     @Column(name = "name")
+    @Size(min=3, max=30, message = "has to be between 3 and 30 characters")
     private String name;
 
     public Tag() {
@@ -59,7 +64,7 @@ public class Tag {
     public String toString() {
         return "Tag{" +
                 "id=" + id +
-                ", posts=" + posts +
+            //    ", posts=" + posts +
                 ", name='" + name + '\'' +
                 '}';
     }

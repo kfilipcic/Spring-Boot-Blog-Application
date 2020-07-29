@@ -31,12 +31,17 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void save(Post theEmployee) {
-        postRepository.save(theEmployee);
+    public void save(Post post) {
+        postRepository.save(post);
     }
 
     @Override
     public void deleteById(int theId) {
         postRepository.deleteById(theId);
+    }
+
+    @Override
+    public Tag findTagByName(String name) {
+        return postRepository.findTagByName(name);
     }
 }

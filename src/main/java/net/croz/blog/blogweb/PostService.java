@@ -10,4 +10,6 @@ public interface PostService {
     void save(Post post);
 
     void deleteById(int theId);
+
+    Tag findTagByName(String name);
 }

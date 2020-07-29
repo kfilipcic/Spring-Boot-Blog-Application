@@ -1,6 +1,8 @@
 package net.croz.blog.blogweb;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,9 +14,13 @@ public class Author {
     @Column(name = "id")
     private int id;
 
+    @NotNull(message = "is required")
+    @Size(min=1, message = "is required")
     @Column(name = "first_name")
     private String firstName;
 
+    @NotNull(message = "is required")
+    @Size(min=1, message = "is required")
     @Column(name = "last_name")
     private String lastName;
 
