@@ -1,6 +1,9 @@
 package net.croz.blog.blogweb;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
@@ -24,8 +27,11 @@ public class Comment {
             CascadeType.PERSIST,
             CascadeType.REFRESH})
     @JoinColumn(name = "author_id")
+    @Valid
     private Author author;
 
+    @NotNull(message = "is required")
+    @Size(min=1, message = "is required")
     @Column(name = "content")
     private String content;
 
@@ -33,11 +39,13 @@ public class Comment {
     private Date dateCreated;
 
     public Comment() {
-
+        dateCreated = new Date();
     }
 
     public Comment(String content) {
         this.content = content;
+
+        dateCreated = new Date();
     }
 
     public int getId() {
@@ -69,6 +77,7 @@ public class Comment {
     }
 
     public void setContent(String content) {
+        System.out.println("SET CONTENT COMMENT");
         this.content = content;
     }
 

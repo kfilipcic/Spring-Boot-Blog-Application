@@ -126,7 +126,7 @@ public class Post {
     public String toString() {
         return "Post{" +
                 "id=" + id +
-                ", author=" + author +
+//                ", author=" + author +
                 ", title='" + title + '\'' +
                 ", content='" + content + '\'' +
                 ", dateCreated=" + dateCreated +
