@@ -7,6 +7,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -33,72 +34,37 @@
 
 <body>
 
-<header class="header text-center">
-    <h1 class="blog-name pt-lg-4 mb-0"><a href="index.html">Blog stranica</a></h1>
-
-    <nav class="navbar navbar-expand-lg navbar-dark">
-
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation"
-                aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div id="navigation" class="collapse navbar-collapse flex-column">
-            <div class="profile-section pt-3 pt-lg-0">
-                <img class="profile-image mb-3 rounded-circle mx-auto" src="assets/images/profile.png" alt="image">
-
-                <div class="bio mb-3">Hi, my name is Anthony Doe. Briefly introduce yourself here. You can also provide
-                    a link to the about page.<br><a href="about.html">Find out more about me</a></div><!--//bio-->
-                <ul class="social-list list-inline py-3 mx-auto">
-                    <li class="list-inline-item"><a href="#"><i class="fab fa-twitter fa-fw"></i></a></li>
-                    <li class="list-inline-item"><a href="#"><i class="fab fa-linkedin-in fa-fw"></i></a></li>
-                    <li class="list-inline-item"><a href="#"><i class="fab fa-github-alt fa-fw"></i></a></li>
-                    <li class="list-inline-item"><a href="#"><i class="fab fa-stack-overflow fa-fw"></i></a></li>
-                    <li class="list-inline-item"><a href="#"><i class="fab fa-codepen fa-fw"></i></a></li>
-                </ul><!--//social-list-->
-                <hr>
-            </div><!--//profile-section-->
-
-            <ul class="navbar-nav flex-column text-left">
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.html"><i class="fas fa-home fa-fw mr-2"></i>Blog Home <span
-                            class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="blog_post.jsp"><i class="fas fa-bookmark fa-fw mr-2"></i>Blog Post</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="about.html"><i class="fas fa-user fa-fw mr-2"></i>About Me</a>
-                </li>
-            </ul>
-
-            <div class="my-2 my-md-3">
-                <a class="btn btn-primary" href="https://themes.3rdwavemedia.com/" target="_blank">Get in Touch</a>
-            </div>
-        </div>
-    </nav>
-</header>
-
 <div class="main-wrapper">
     <section class="cta-section theme-bg-light py-5">
         <div class="container text-center">
             <a href="new_post" class="btn btn-primary justify-content-end" style="background-color: #1f427a">Novi
                 post</a>
-            <form class="signup-form form-inline justify-content-center pt-3">
+            <form class="signup-form form-inline justify-content-start pt-3">
+                <h2 class="card-title">Search:</h2>
                 <div class="form-group">
-                    <label class="sr-only" for="semail">Your email</label>
-                    <input type="email" id="semail" name="semail1" class="form-control mr-md-1 semail"
-                           placeholder="Pretraži blog">
+                    <form:form action="/processSearch" method="GET" modelAttribute="post" >
+                        <form:input path="author.firstName" class="form-control mr-md-1 semail"
+                               placeholder="Author name (min. 3 letters for autocomplete)"  />
+                        <form:input path="title" class="form-control mr-md-1 semail"
+                                    placeholder="Title"  /> <br><br>
                 </div>
-                <button type="submit" class="btn btn-primary">Traži</button>
+                        <input path="dateFrom" type="text" id="dateFrom" name="dateFrom" class="form-control mr-md-1 semail"
+                                    placeholder="Date from (dd.mm.yyyy)"  />
+                        <input path="dateTo" type="text" id="dateTo" name="dateTo" class="form-control mr-md-1 semail"
+                                    placeholder="Date to (dd.mm.yyyy)"  /> <br><br>
+                        <form:input path="tag.name" class="form-control mr-md-1 semail"
+                                    placeholder="Tag name (min. 3 letters for autocomplete)"  /> <br><br>
+                        <input type="submit" class="btn btn-primary"></input>
+                    </form:form>
             </form>
         </div><!--//container-->
     </section>
     <section class="blog-list px-3 py-5 p-md-5">
+        <h2 class="subTitle text-center" style="margin-bottom: 40px">Search results</h2>
         <div class="container">
             <%
                 // List posts in reverse order (newest first)
-                Collections.reverse((List<?>) request.getAttribute("posts"));
+               // Collections.reverse((List<?>) request.getAttribute("posts"));
             %>
             <c:forEach var="post" items="${posts}">
                 <sql:setDataSource var="snapshot" driver="com.mysql.jdbc.Driver"

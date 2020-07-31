@@ -1,11 +1,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <!DOCTYPE html>
 <html lang="en"> 
 <head>
-    <title>Blog post <c:if test="${empty blogPost}" >POE</c:if></title>
+    <title>Blog post</title>
 
     <!-- Meta -->
     <meta charset="utf-8">
@@ -82,15 +84,30 @@
 	    <article class="blog-post px-3 py-5 p-md-5">
 
 			<div class="container">
-			    <header class="blog-post-header">
-				    <h2 class="title mb-2">${blogPost.title}</h2>
-				    <div class="meta mb-3"><span class="date">Published ${blogPost.dateCreated}</span><span class="comment"><a href="#">4 comments</a></span></div>
-			    </header>
-			    
-			    <div class="blog-post-body">
+				<sql:setDataSource var="snapshot" driver="com.mysql.jdbc.Driver"
+								   url="jdbc:mysql://localhost:3306/blogdb2?useSSL=false"
+								   user="hbstudent" password="hbstudent"/>
+
+				<sql:query dataSource="${snapshot}" var="result">
+				select count(*) num from comment where post_id=${blogPost.id};
+				</sql:query>
+
+				<header class="blog-post-header">
+					<h2 class="title mb-2">${blogPost.title}</h2>
+					<div class="meta mb-3">
+						<span class="time">Author: ${blogPost.author.firstName} ${blogPost.author.lastName}</span>
+						<span class="date">Date created:
+							<fmt:parseDate pattern="yyyy-MM-dd HH:mm:ss" value="${blogPost.dateCreated}" var="parsedDate" />
+							<fmt:formatDate value="${parsedDate}" pattern="dd.MM.yyyy" />
+						</span>
+						<span class="comment"><a href="#comment-section">${result.rows[0].num} comments</a></span>
+						<c:if test="${not empty blogPost.tag.name}"><span class="time">Tag: ${blogPost.tag.name}</span></c:if></div>
+				</header>
+
+			<div class="blog-post-body">
 				    <p>${blogPost.content}</p>
 
-				<div class="blog-comments-section">
+				<div class="blog-comments-section" id="comment-section">
 					<h2 class="title">Comments</h2> <br>
 					<c:forEach var="comment" items="${comments}">
 					<div class="col-sm-5 rounded" style="background-color: #5fcb71; color: #ffffff">

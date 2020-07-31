@@ -77,7 +77,6 @@ public class Comment {
     }
 
     public void setContent(String content) {
-        System.out.println("SET CONTENT COMMENT");
         this.content = content;
     }
 

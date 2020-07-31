@@ -1,6 +1,6 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <html>
-<head title="aaaaaaaaaaaaaaaaaaaa"></head>
+<head title="Create a new post"></head>
 <style>
 
     @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,600,400italic);

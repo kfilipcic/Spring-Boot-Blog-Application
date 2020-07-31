@@ -1,5 +1,8 @@
 package net.croz.blog.blogweb;
 
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.Date;
 import java.util.List;
 
 public interface PostService {
@@ -12,4 +15,16 @@ public interface PostService {
     void deleteById(int theId);
 
     Tag findTagByName(String name);
+
+    List<Post> findPostsByAuthorFirstName(String firstName);
+
+    List<Post> findPostsByAuthorLastName(String lastName);
+
+    List<Post> findPostsByTitle(String title);
+
+    List<Post> findPostsByDateStartingWith(Date dateString);
+
+    List<Post> findPostsByDateEndingWith(Date dateString);
+
+    List<Post> findPostsByTagName(String tagName);
 }
