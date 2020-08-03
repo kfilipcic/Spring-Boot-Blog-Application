@@ -16,7 +16,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query("SELECT p FROM Post p WHERE p.author.lastName LIKE ?1")
     List<Post> findPostsByAuthorLastName(String lastName);
 
-    @Query("SELECT p FROM Post p WHERE p.title LIKE ?1")
+    @Query("SELECT p FROM Post p WHERE p.title LIKE %?1%")
     List<Post> findPostsByTitle(String title);
 
     @Query("SELECT p FROM Post p WHERE p.dateCreated >= ?1")

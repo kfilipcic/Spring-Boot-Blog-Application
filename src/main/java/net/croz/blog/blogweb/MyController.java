@@ -1,6 +1,8 @@
 package net.croz.blog.blogweb;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.support.PagedListHolder;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,6 +16,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.util.Arrays.asList;
 
@@ -72,94 +76,114 @@ public class MyController {
     }
 
     @GetMapping("/search")
-    public String processSearch(@Valid @ModelAttribute("post") Post model,
-                                BindingResult result,
-                                @RequestParam("dateFrom") String dateFrom,
-                                @RequestParam("dateTo") String dateTo, Model modell) {
+    public String processSearch(@RequestParam("dateFrom") Optional<String> dateFrom,
+                                @RequestParam("dateTo") Optional<String> dateTo,
+                                @RequestParam("authorName") Optional<String> authorName,
+                                @RequestParam("title") Optional<String> title,
+                                @RequestParam("tagName") Optional<String> tagName,
+                                @RequestParam("pageNumber") Optional<Integer> pageNumber,
+                                Model model) {
 
-        List<Post> posts = postService.findAll();
-        Post post = new Post();
-        Author author = new Author();
-        if (modell.getAttribute("post") == null) {
-            modell.addAttribute("post", post);
-        }
-        if (modell.getAttribute("posts") == null) {
-            modell.addAttribute("posts", post);
-        }
-        modell.addAttribute("posts", posts);
+        // For autocompletion - temporary hack
+        model.addAttribute("allPosts", postService.findAll());
 
-        List<Post> results = new ArrayList<>();
+        DateFormat format = new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH);
 
-        if (model.getAuthor() != null) {
-            if (model.getAuthor().getFirstName() != null ) {
-                List<Post> results1 = postService.findPostsByAuthorFirstName(model.getAuthor().getFirstName());
-                System.out.println("RESULTS1: ");
-                for (Post p : results1) {
-                    System.out.println(p.getAuthor());
-                }
-                results.addAll(results1);
-            }
-            if (model.getAuthor().getLastName() != null) {
-                List<Post> results2 = postService.findPostsByAuthorFirstName(model.getAuthor().getLastName());
-                System.out.println("RESULTS2: ");
-                for (Post p : results2) {
-                    System.out.println(p.getAuthor());
-                }
-                results.addAll(results2);
+        List<Post> posts = new ArrayList<>();
+
+        String namePattern = "(\\S+)?\\s(\\S+)";
+        Pattern r = Pattern.compile(namePattern);
+        Matcher matcher = r.matcher(authorName.get());
+
+        List<Post> namePosts = new ArrayList<>();
+
+        //If two words are entered, search by first and last name separately
+        if (!authorName.get().isEmpty()) {
+            if (matcher.find() && matcher.groupCount() == 2) {
+                List<Post> postsByAuthorFirstName = postService.findPostsByAuthorFirstName(matcher.group(1));
+                List<Post> postsByAuthorLastName = postService.findPostsByAuthorLastName(matcher.group(2));
+
+                postsByAuthorFirstName.retainAll(postsByAuthorLastName);
+
+                namePosts.addAll(postsByAuthorFirstName);
+
+                //If there aren't two words entered, search the entire input
+                // both by first and last name
+            } else if (matcher.groupCount() > 0) {
+                namePosts.addAll(postService.findPostsByAuthorFirstName(authorName.orElse("_")));
+                namePosts.addAll(postService.findPostsByAuthorLastName(authorName.orElse("_")));
             }
         }
-        if (model.getTitle() != null) {
-            List<Post> results3 = postService.findPostsByTitle(model.getTitle());
-            System.out.println("RESULTS3: ");
-            for (Post p : results3) {
-                System.out.println(p);
-            }
-            results.addAll(results3);
+
+        List<Post> titlePosts = new ArrayList<>();
+        List<Post> tagPosts = new ArrayList<>();
+
+        if (title.isPresent() && !title.get().isEmpty()) {
+            titlePosts = postService.findPostsByTitle(title.orElse("_"));
         }
-        if (model.getTag() != null && model.getTag().getName() != null) {
-            List<Post> results4 = postService.findPostsByTagName(model.getTag().getName());
-            System.out.println("RESULTS4: ");
-            for (Post p : results4) {
-                System.out.println(p);
-            }
-            results.addAll(results4);
+        tagPosts = postService.findPostsByTagName(tagName.orElse("_"));
+
+        List<Post> dateStartPosts = new ArrayList<>();
+        List<Post> dateEndPosts = new ArrayList<>();
+        boolean dateStartFailed = false;
+        boolean dateEndFailed = false;
+
+        try {
+            dateStartPosts = postService.findPostsByDateStartingWith(format.parse(dateFrom.orElse("_")));
+        } catch (ParseException e) {
+            System.err.println("Error while parsing start date");
+            dateStartFailed = true;
         }
-        if (dateFrom != null && !dateFrom.isEmpty()) {
-            DateFormat format = new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH);
-            Date date = new Date();
-            try {
-                date = format.parse(dateFrom);
-            } catch (ParseException e) {
-                System.err.println("Error while parsing date");
-                e.printStackTrace();
-            }
-            List<Post> results5 = postService.findPostsByDateStartingWith(date);
-            System.out.println("RESULTS5: ");
-            for (Post p : results5) {
-                System.out.println(p);
-            }
-            results.addAll(results5);
+        try {
+            dateEndPosts = postService.findPostsByDateEndingWith(format.parse(dateTo.orElse("_")));
+        } catch (ParseException e) {
+            System.err.println("Error while parsing end date");
+            dateEndFailed = true;
         }
-        if (dateTo != null && !dateTo.isEmpty()) {
-            DateFormat format = new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH);
-            Date date = new Date();
-            try {
-                date = format.parse(dateTo);
-            } catch (ParseException e) {
-                System.err.println("Error while parsing date");
-                e.printStackTrace();
-            }
-            List<Post> results6 = postService.findPostsByDateStartingWith(date);
-            System.out.println("RESULTS5: ");
-            for (Post p : results6) {
-                System.out.println(p);
-            }
-            results.addAll(results6);
+
+        List<List<Post>> lists = new ArrayList<>();
+
+        if (!dateStartFailed) {
+            lists.add(dateStartPosts);
         }
-        System.out.println("FOUND RESULTS: ");
-        for (Post r : results) {
-            System.out.println(r);
+        if (!dateEndFailed) {
+            lists.add(dateEndPosts);
         }
+        lists.add(namePosts);
+        lists.add(tagPosts);
+        lists.add(titlePosts);
+
+        boolean first = true;
+
+        for (List<Post> list : lists) {
+            if (list.isEmpty()) continue;
+            if (first) {
+                posts.addAll(list);
+                first = false;
+            } else {
+                posts.retainAll(list);
+            }
+        }
+
+        model.addAttribute("posts", posts);
+
+        //Pagination implementation
+
+        //Pageable pageable = PageRequest.of(0, 5);
+       // Page<Post> page = new PageImpl<>(posts, pageable, posts.size());
+
+        PagedListHolder<Post> page = new PagedListHolder<>(posts);
+            page.setPageSize(5);
+            page.setPage(pageNumber.orElse(0));
+
+            int totalPages = page.getPageCount();
+            List<Post> currentPosts = page.getPageList();
+
+        System.out.println("PAGE:");
+        for (Post pst : currentPosts) {
+            System.out.println(pst);
+        }
+
         return "search";
     }
 
