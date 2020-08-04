@@ -1,6 +1,9 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <html>
-<head title="Create a new post"></head>
+<head title="Create a new post">
+    <!-- Theme CSS -->
+    <link id="theme-style" rel="stylesheet" href="assets/css/theme-1.css">
+</head>
 <style>
 
     @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,600,400italic);
@@ -168,9 +171,22 @@
 
 </style>
 <body>
+
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid" style="background-color: #F9F9F9">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">CROZ Blog App</a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            <li><span class="glyphicon glyphicon-log-in"></span>Logged in as: <h4>${currentUsername}</h4></li>
+        </ul>
+    </div>
+</nav>
+
 <div class="kontenjer">
     <form:form id="contact" action="processForm" method="POST" modelAttribute="post">
         <h3>Create a new post</h3>
+        <!--
         <fieldset>
             <form:input path="author.firstName" placeholder="Name"></form:input>
             <form:errors path="author.firstName" cssClass="error"></form:errors>
@@ -182,7 +198,7 @@
         <fieldset>
             <form:input path="author.email" placeholder="Email (optional)"></form:input>
             <form:errors path="author.email" cssClass="error"></form:errors>
-        </fieldset>
+        </fieldset> -->
         <fieldset>
             <form:input path="title" placeholder="Title"></form:input>
             <form:errors path="title" cssClass="error"></form:errors>

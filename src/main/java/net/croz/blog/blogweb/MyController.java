@@ -1,8 +1,10 @@
 package net.croz.blog.blogweb;
 
+import org.h2.engine.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -32,6 +34,7 @@ public class MyController {
         this.commentService = commentService;
     }
 
+
     @GetMapping("/form_example")
     public String formExample(Model model) {
         model.addAttribute("post", new Post());
@@ -45,6 +48,11 @@ public class MyController {
             RedirectAttributes redirectAttributes
             ) {
 
+
+        MyUserDetails loggedUser = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Author currentAuthor = userRepository.findByUserName(loggedUser.getUsername()).orElse(null);
+
+        comment.setAuthor(currentAuthor);
 
         String postId = String.valueOf(comment.getPost().getId());
 
@@ -65,6 +73,11 @@ public class MyController {
 
     @RequestMapping(value = "/blog_post_{post.id}", method = RequestMethod.GET)
     public String openBlogPost(@PathVariable("post.id") String pathVariable, Model model) {
+        MyUserDetails loggedUser = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Author currentAuthor = userRepository.findByUserName(loggedUser.getUsername()).orElse(null);
+
+        model.addAttribute("currentUsername", loggedUser.getUsername());
+
         Post post = postService.findById(Integer.valueOf(pathVariable));
         model.addAttribute("blogPost", post);
         if (!model.containsAttribute("comment")) {
@@ -85,9 +98,12 @@ public class MyController {
                                 @RequestParam("itemsNum")  Optional<Integer> itemsNum,
                                 Model model) {
 
+        MyUserDetails loggedUser = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Author currentAuthor = userRepository.findByUserName(loggedUser.getUsername()).orElse(null);
 
-        // For autocompletion - temporary hack
-        // Not memory efficient
+        model.addAttribute("currentUsername", loggedUser.getUsername());
+
+        // For autocompletion - not memory efficient!
         model.addAttribute("allPosts", postService.findAll());
 
         DateFormat format = new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH);
@@ -203,6 +219,9 @@ public class MyController {
 
     @GetMapping("/")
     public String showIndex(Model model) {
+        MyUserDetails loggedUser = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        model.addAttribute("currentUsername", loggedUser.getUsername());
+
         List<Post> posts = postService.findAll();
 
         //Show newest posts first
@@ -214,12 +233,23 @@ public class MyController {
 
     @GetMapping("/new_post")
     public String showNewPostForm(Model model) {
+        MyUserDetails loggedUser = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        model.addAttribute("currentUsername", loggedUser.getUsername());
+
         model.addAttribute("post", new Post());
         return "new_post";
     }
 
+    @Autowired
+    private UserRepository userRepository;
+
     @PostMapping("/processForm")
     public String processForm(@Valid @ModelAttribute("post") Post model, BindingResult result) {
+        MyUserDetails loggedUser = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Author currentAuthor = userRepository.findByUserName(loggedUser.getUsername()).orElse(null);
+
+        model.setAuthor(currentAuthor);
+
         String tagName = model.getTag().getName();
 
         // Set the current date (it can't be null)

@@ -14,6 +14,18 @@ public class Author {
     @Column(name = "id")
     private int id;
 
+    @Column(name = "username")
+    private String userName;
+
+    @Column(name = "password")
+    private String password;
+
+    @Column(name = "active")
+    private Boolean active = false;
+
+    @Column(name = "roles")
+    private String roles;
+
     @NotNull(message = "is required")
     @Size(min=1, message = "is required")
     @Column(name = "first_name")
@@ -113,6 +125,38 @@ public class Author {
         this.posts = posts;
     }
 
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public Boolean isActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public String getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     @Override
     public String toString() {
         return "Author{" +
@@ -120,7 +164,9 @@ public class Author {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", posts=" + posts +
+                ", posts=" + posts + '\'' +
+                ", username=" + userName + '\'' +
+                ", password=" + password +
                 '}';
     }
 }
