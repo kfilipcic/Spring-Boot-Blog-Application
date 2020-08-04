@@ -43,10 +43,6 @@
     <h2 class="title text-center" style="margin-top: 50px" >Posts</h2>
     <section class="blog-list px-3 py-5 p-md-5">
         <div class="container">
-            <%
-                // List posts in reverse order (newest first)
-                Collections.reverse((List<?>) request.getAttribute("posts"));
-            %>
             <c:forEach var="post" items="${posts}">
                 <sql:setDataSource var="snapshot" driver="com.mysql.jdbc.Driver"
                                    url="jdbc:mysql://localhost:3306/blogdb2?useSSL=false"

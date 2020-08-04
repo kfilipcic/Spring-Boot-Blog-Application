@@ -81,50 +81,59 @@ public class MyController {
                                 @RequestParam("authorName") Optional<String> authorName,
                                 @RequestParam("title") Optional<String> title,
                                 @RequestParam("tagName") Optional<String> tagName,
-                                @RequestParam("pageNumber") Optional<Integer> pageNumber,
+                                @RequestParam("page") Optional<Integer> pageNumber,
+                                @RequestParam("itemsNum")  Optional<Integer> itemsNum,
                                 Model model) {
 
+
         // For autocompletion - temporary hack
+        // Not memory efficient
         model.addAttribute("allPosts", postService.findAll());
 
         DateFormat format = new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH);
 
         List<Post> posts = new ArrayList<>();
-
-        String namePattern = "(\\S+)?\\s(\\S+)";
-        Pattern r = Pattern.compile(namePattern);
-        Matcher matcher = r.matcher(authorName.get());
-
         List<Post> namePosts = new ArrayList<>();
-
-        //If two words are entered, search by first and last name separately
-        if (!authorName.get().isEmpty()) {
-            if (matcher.find() && matcher.groupCount() == 2) {
-                List<Post> postsByAuthorFirstName = postService.findPostsByAuthorFirstName(matcher.group(1));
-                List<Post> postsByAuthorLastName = postService.findPostsByAuthorLastName(matcher.group(2));
-
-                postsByAuthorFirstName.retainAll(postsByAuthorLastName);
-
-                namePosts.addAll(postsByAuthorFirstName);
-
-                //If there aren't two words entered, search the entire input
-                // both by first and last name
-            } else if (matcher.groupCount() > 0) {
-                namePosts.addAll(postService.findPostsByAuthorFirstName(authorName.orElse("_")));
-                namePosts.addAll(postService.findPostsByAuthorLastName(authorName.orElse("_")));
-            }
-        }
-
         List<Post> titlePosts = new ArrayList<>();
         List<Post> tagPosts = new ArrayList<>();
+        List<Post> dateStartPosts = new ArrayList<>();
+        List<Post> dateEndPosts = new ArrayList<>();
+
+        if (authorName.isPresent()) {
+            //Regular expression for determining
+            //if only one or two words were entered
+            String namePattern = "(\\S+)?\\s(\\S+)";
+            Pattern r = Pattern.compile(namePattern);
+            Matcher matcher = r.matcher(authorName.get());
+
+
+            //If two words are entered, search by first and last name separately
+            if (!authorName.get().isEmpty()) {
+                if (matcher.find() && matcher.groupCount() == 2) {
+                    List<Post> postsByAuthorFirstName = postService.findPostsByAuthorFirstName(matcher.group(1));
+                    List<Post> postsByAuthorLastName = postService.findPostsByAuthorLastName(matcher.group(2));
+
+                    postsByAuthorFirstName.retainAll(postsByAuthorLastName);
+
+                    namePosts.addAll(postsByAuthorFirstName);
+
+                    //If there aren't two words entered, search the entire input
+                    // both by first and last name
+                } else if (matcher.groupCount() > 0) {
+                    namePosts.addAll(postService.findPostsByAuthorFirstName(authorName.orElse("_")));
+                    namePosts.addAll(postService.findPostsByAuthorLastName(authorName.orElse("_")));
+                }
+            }
+        }
 
         if (title.isPresent() && !title.get().isEmpty()) {
             titlePosts = postService.findPostsByTitle(title.orElse("_"));
         }
-        tagPosts = postService.findPostsByTagName(tagName.orElse("_"));
 
-        List<Post> dateStartPosts = new ArrayList<>();
-        List<Post> dateEndPosts = new ArrayList<>();
+        if (tagName.isPresent() && tagName.get().isEmpty()) {
+            tagPosts = postService.findPostsByTagName(tagName.orElse("_"));
+        }
+
         boolean dateStartFailed = false;
         boolean dateEndFailed = false;
 
@@ -165,7 +174,8 @@ public class MyController {
             }
         }
 
-        model.addAttribute("posts", posts);
+        // Newest posts are shown first
+        Collections.reverse(posts);
 
         //Pagination implementation
 
@@ -173,16 +183,15 @@ public class MyController {
        // Page<Post> page = new PageImpl<>(posts, pageable, posts.size());
 
         PagedListHolder<Post> page = new PagedListHolder<>(posts);
-            page.setPageSize(5);
+            page.setPageSize(itemsNum.orElse(5));
             page.setPage(pageNumber.orElse(0));
 
             int totalPages = page.getPageCount();
             List<Post> currentPosts = page.getPageList();
 
-        System.out.println("PAGE:");
-        for (Post pst : currentPosts) {
-            System.out.println(pst);
-        }
+        model.addAttribute("posts", currentPosts);
+        model.addAttribute("totalPages", String.valueOf(totalPages+1));
+        model.addAttribute("currentPageNum", String.valueOf(pageNumber.orElse(0)+1));
 
         return "search";
     }
@@ -195,6 +204,10 @@ public class MyController {
     @GetMapping("/")
     public String showIndex(Model model) {
         List<Post> posts = postService.findAll();
+
+        //Show newest posts first
+        Collections.reverse(posts);
+
         model.addAttribute("posts", posts);
         return "index";
     }

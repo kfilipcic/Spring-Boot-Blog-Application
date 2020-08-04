@@ -84,21 +84,26 @@
                         <div class="container autocomplete">
                             <input name="authorName" onkeydown="onChangeAutocomplete('authorName')"
                                    class="form-control mr-md-1 semail"
-                                   placeholder="Author name (min. 3 letters for autocomplete)"/>
+                                   placeholder="Author name (min. 3 letters for autocomplete)"
+                                   value="${param.authorName}"/>
                         </div>
                         <br><br>
                         <input name="title" class="form-control mr-md-1 semail autocomplete container"
-                               placeholder="Title"/> <br><br>
+                               placeholder="Title" value="${param.title}"/> <br><br>
                         <input name="dateFrom" type="text" id="my-input" name="dateFrom"
                                class="form-control mr-md-1 semail autocomplete container dateInputs"
-                               placeholder="Date from (dd.mm.yyyy)" autocomplete="off"/> <br><br>
+                               placeholder="Date from (dd.mm.yyyy)"
+                               autocomplete="off"
+                               value="${param.dateFrom}"/> <br><br>
                         <input name="dateTo" type="text" id="my-input2" name="dateTo"
                                class="form-control mr-md-1 semail autocomplete container dateInputs"
-                               placeholder="Date to (dd.mm.yyyy)"/> <br><br>
+                               placeholder="Date to (dd.mm.yyyy)"
+                               value="${param.dateTo}"/> <br><br>
                         <div class="container autocomplete">
                             <input name="tagName" onkeydown="onChangeAutocomplete('tagName')"
                                    class="form-control mr-md-1 semail autocomplete container"
-                                   placeholder="Tag name (min. 3 letters for autocomplete)"/>
+                                   placeholder="Tag name (min. 3 letters for autocomplete)"
+                                   value="${param.tagName}"/>
                         </div>
                         <br><br>
                         <input type="submit" class="btn btn-primary"></input>
@@ -112,10 +117,6 @@
     <section class="blog-list px-3 py-5 p-md-5">
         <h2 class="subTitle text-center" style="margin-bottom: 40px">Search results</h2>
         <div class="container">
-            <%
-                // List posts in reverse order (newest first)
-                // Collections.reverse((List<?>) request.getAttribute("posts"));
-            %>
             <c:forEach var="post" items="${posts}">
                 <sql:setDataSource var="snapshot" driver="com.mysql.jdbc.Driver"
                                    url="jdbc:mysql://localhost:3306/blogdb2?useSSL=false"
@@ -151,17 +152,51 @@
                 <!--//item-->
             </c:forEach>
             <div class="pagination item mb-5 text-center" style="text-align: center">
-                <form action="/search" method="GET"></form>
-                <input type="submit" href="#">&laquo;</input>
-                <a href="#">1</a>
-                <a class="active" href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">4</a>
-                <a href="#">5</a>
-                <a href="#">6</a>
-                <a href="#">&raquo;</a>
+                <c:set var="firstPageNum" value="${0}"></c:set>
+                <c:choose>
+                    <c:when test="${currentPageNum-1 > firstPageNum}">
+                        <a href="search?authorName=${param.authorName}&title=${param.title}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}&tagName=${param.tagName}&page=${currentPageNum-2}&itemsNum=${param.itemsNum}">&laquo;</a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="search?authorName=${param.authorName}&title=${param.title}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}&tagName=${param.tagName}&page=${currentPageNum-1}&itemsNum=${param.itemsNum}">&laquo;</a>
+                    </c:otherwise>
+                </c:choose>
+                <c:forEach begin="1" end="${totalPages-1}" var="pageNum">
+                    <c:choose>
+                        <c:when test="${pageNum == currentPageNum}">
+                            <a class="active"
+                               href="search?authorName=${param.authorName}&title=${param.title}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}&tagName=${param.tagName}&page=${pageNum-1}&itemsNum=${param.itemsNum}">${pageNum}</a>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="search?authorName=${param.authorName}&title=${param.title}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}&tagName=${param.tagName}&page=${pageNum-1}&itemsNum=${param.itemsNum}">${pageNum}</a>
+                        </c:otherwise>
+                    </c:choose>
+                </c:forEach>
+                <c:choose>
+                    <c:when test="${currentPageNum < totalPages-1}">
+                        <a href="search?authorName=${param.authorName}&title=${param.title}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}&tagName=${param.tagName}&page=${currentPageNum}&itemsNum=${param.itemsNum}">&raquo;</a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="search?authorName=${param.authorName}&title=${param.title}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}&tagName=${param.tagName}&page=${currentPageNum-1}&itemsNum=${param.itemsNum}">&raquo;</a>
+                    </c:otherwise>
+                </c:choose>
+                <p>Items per page: </p>
+                <select name="itemsNum" id="itemsNum" onchange="refreshPage(this)">
+                    <option value="5" <c:if test="${param.itemsNum == 5}">selected</c:if>>5</option>
+                    <option value="10" <c:if test="${param.itemsNum == 10}">selected</c:if>>10</option>
+                    <option value="15" <c:if test="${param.itemsNum == 15}">selected</c:if>>15</option>
+                    <option value="20" <c:if test="${param.itemsNum == 20}">selected</c:if>>20</option>
+                    <option value="25" <c:if test="${param.itemsNum == 25}">selected</c:if>>25</option>
+                </select>
+                <script>
+                    function refreshPage(itemsNumSelect) {
+                        window.location.assign("?authorName=${param.authorName}&title=${param.title}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}&tagName=${param.tagName}&page=${currentPageNum-1}&itemsNum=" + itemsNumSelect.value);
+                    }
+                </script>
             </div>
         </div>
+        <h3>${pageContext.request.contextPath}</h3>
+        <h3>${requestcope['javax.servlet.forward.query_string']}</h3>
     </section>
 
     <ul style="display: none" class="settings">
