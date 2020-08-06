@@ -1,23 +1,23 @@
-package net.croz.blog.blogweb;
+package net.croz.blog.blogweb.security;
 
+import net.croz.blog.blogweb.author.Author;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MyUserDetails implements UserDetails {
+public class AuthorUserDetails implements UserDetails {
 
     private String userName;
     private String password;
     private boolean active;
     private List<GrantedAuthority> authorities;
 
-    public MyUserDetails(Author author) {
+    public AuthorUserDetails(Author author) {
         this.userName = author.getUserName();
         this.password = author.getPassword();
         this.active = author.isActive();

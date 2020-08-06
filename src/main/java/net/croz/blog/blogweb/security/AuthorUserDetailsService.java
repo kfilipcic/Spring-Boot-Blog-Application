@@ -1,6 +1,6 @@
-package net.croz.blog.blogweb;
+package net.croz.blog.blogweb.security;
 
-import lombok.AllArgsConstructor;
+import net.croz.blog.blogweb.author.Author;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,25 +11,25 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class MyUserDetailsService implements UserDetailsService {
+public class AuthorUserDetailsService implements UserDetailsService {
     @Autowired
-    UserRepository userRepository;
+    AuthorUserRepository authorUserRepository;
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-        Optional<Author> user = userRepository.findByUserName(userName);
+        Optional<Author> user = authorUserRepository.findByUserName(userName);
 
         user.orElseThrow(() -> new UsernameNotFoundException("Not found: " + userName));
 
-        return user.map(MyUserDetails::new).get();
+        return user.map(AuthorUserDetails::new).get();
     }
 
-    void signUpUser(Author author) {
+    public void signUpUser(Author author) {
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
         final String encryptedPassword = bCryptPasswordEncoder.encode(author.getPassword());
         author.setPassword(encryptedPassword);
         author.setActive(true);
         author.setRoles("ROLE_USER");
-        final Author createdUser = userRepository.save(author);
+        authorUserRepository.save(author);
     }
 }

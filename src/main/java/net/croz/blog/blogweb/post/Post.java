@@ -1,5 +1,7 @@
-package net.croz.blog.blogweb;
+package net.croz.blog.blogweb.post;
 
+import net.croz.blog.blogweb.author.Author;
+import net.croz.blog.blogweb.tag.Tag;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 

@@ -1,5 +1,6 @@
-package net.croz.blog.blogweb;
+package net.croz.blog.blogweb.post;
 
+import net.croz.blog.blogweb.tag.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

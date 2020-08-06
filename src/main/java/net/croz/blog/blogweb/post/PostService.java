@@ -1,6 +1,6 @@
-package net.croz.blog.blogweb;
+package net.croz.blog.blogweb.post;
 
-import org.springframework.data.jpa.repository.Query;
+import net.croz.blog.blogweb.tag.Tag;
 
 import java.util.Date;
 import java.util.List;

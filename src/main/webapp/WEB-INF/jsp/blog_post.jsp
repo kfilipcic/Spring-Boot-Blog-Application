@@ -41,10 +41,11 @@
 <nav class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="">CROZ Blog App</a>
+            <a class="navbar-brand" href="/">CROZ Blog App</a>
         </div>
         <ul class="nav navbar-nav navbar-right">
             <li><span class="glyphicon glyphicon-log-in"></span>Logged in as: <h4>${currentUsername}</h4></li>
+            <li><span class="glyphicon glyphicon-log-in"></span><a href="/logout">Logout</a></li>
         </ul>
     </div>
 </nav>

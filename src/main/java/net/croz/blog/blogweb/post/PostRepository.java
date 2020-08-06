@@ -1,12 +1,15 @@
-package net.croz.blog.blogweb;
+package net.croz.blog.blogweb.post;
 
+import net.croz.blog.blogweb.post.Post;
+import net.croz.blog.blogweb.tag.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Date;
 import java.util.List;
 
-public interface PostRepository extends JpaRepository<Post, Integer> {
+public interface PostRepository extends JpaRepository<Post, Integer>, JpaSpecificationExecutor<Post> {
     @Query("SELECT t FROM Tag t WHERE t.name = ?1")
     Tag findTagByName(String name);
 

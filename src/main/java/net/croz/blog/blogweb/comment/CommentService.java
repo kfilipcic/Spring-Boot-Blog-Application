@@ -1,4 +1,6 @@
-package net.croz.blog.blogweb;
+package net.croz.blog.blogweb.comment;
+
+import net.croz.blog.blogweb.comment.Comment;
 
 import java.util.List;
 

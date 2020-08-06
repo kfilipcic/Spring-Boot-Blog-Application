@@ -1,6 +1,4 @@
-package net.croz.blog.blogweb;
-
-import org.springframework.beans.BeanWrapperImpl;
+package net.croz.blog.blogweb.tag;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

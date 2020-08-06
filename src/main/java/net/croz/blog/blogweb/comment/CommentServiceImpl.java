@@ -1,4 +1,4 @@
-package net.croz.blog.blogweb;
+package net.croz.blog.blogweb.comment;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
