@@ -1,5 +1,4 @@
 package net.croz.blog.blogweb.controller;
-import net.croz.blog.blogweb.post.Post;
 import net.croz.blog.blogweb.service.PostService;
 import net.croz.blog.blogweb.security.AuthorUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +6,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import java.util.*;
 
 @Controller
 public class MainPageController {
@@ -20,15 +18,12 @@ public class MainPageController {
 
     @GetMapping("/")
     public String showIndex(Model model) {
-        AuthorUserDetails loggedUser = (AuthorUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        model.addAttribute("currentUsername", loggedUser.getUsername());
+        AuthorUserDetails loggedUser = (AuthorUserDetails) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-        List<Post> posts = postService.findAll();
+        return postService.indexPage(model, loggedUser);
 
-        //Show newest posts first
-        Collections.reverse(posts);
-
-        model.addAttribute("posts", posts);
-        return "index";
     }
 }

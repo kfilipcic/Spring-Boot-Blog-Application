@@ -1,21 +1,38 @@
 package net.croz.blog.blogweb.service;
 
-import net.croz.blog.blogweb.comment.Comment;
+import net.croz.blog.blogweb.domain.Author;
+import net.croz.blog.blogweb.domain.Comment;
+import net.croz.blog.blogweb.domain.Post;
 import net.croz.blog.blogweb.repository.CommentRepository;
-import net.croz.blog.blogweb.service.CommentService;
+import net.croz.blog.blogweb.security.AuthorUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
+    private PostService postService;
+    private AuthorUserDetailsService authorUserDetailsService;
 
     @Autowired
     public CommentServiceImpl(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
+    }
+
+    @Autowired
+    public void setPostService(PostService postService) {
+        this.postService = postService;
+    }
+
+    @Autowired
+    public void setAuthorUserDetailsService(AuthorUserDetailsService authorUserDetailsService) {
+        this.authorUserDetailsService = authorUserDetailsService;
     }
 
     @Override
@@ -46,6 +63,31 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<Comment> findAllByPostId(int postId) {
         return commentRepository.findAllByPostId(postId);
+    }
+
+    @Override
+    public String createComment(Comment comment,
+                                AuthorUserDetails loggedUser,
+                                BindingResult result,
+                                RedirectAttributes redirectAttributes) {
+
+        Author currentAuthor = authorUserDetailsService.findByUserName(loggedUser.getUsername()).orElse(null);
+        comment.setAuthor(currentAuthor);
+
+        String postId = String.valueOf(comment.getPost().getId());
+
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.comment", result);
+            redirectAttributes.addFlashAttribute("comment", comment);
+            return "redirect:/blog_post_" + postId + "#comments";
+        }
+
+        Post post = postService.findById(comment.getPost().getId());
+        comment.setPost(post);
+
+        comment.setDateCreated(new Date());
+        this.save(comment);
+        return "redirect:/blog_post_" + postId + "#comments";
     }
 
 }

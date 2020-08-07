@@ -1,7 +1,4 @@
-package net.croz.blog.blogweb.comment;
-
-import net.croz.blog.blogweb.author.Author;
-import net.croz.blog.blogweb.post.Post;
+package net.croz.blog.blogweb.domain;
 
 import javax.persistence.*;
 import javax.validation.Valid;

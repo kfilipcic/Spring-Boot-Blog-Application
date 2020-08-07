@@ -1,6 +1,6 @@
 package net.croz.blog.blogweb.repository;
 
-import net.croz.blog.blogweb.author.Author;
+import net.croz.blog.blogweb.domain.Author;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

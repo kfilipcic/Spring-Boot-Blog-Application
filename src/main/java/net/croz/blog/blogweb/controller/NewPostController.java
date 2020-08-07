@@ -1,6 +1,6 @@
 package net.croz.blog.blogweb.controller;
 
-import net.croz.blog.blogweb.post.Post;
+import net.croz.blog.blogweb.domain.Post;
 import net.croz.blog.blogweb.service.PostService;
 import net.croz.blog.blogweb.security.AuthorUserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,12 +23,12 @@ public class NewPostController {
 
     @GetMapping("/new_post")
     public String showNewPostForm(Model model) {
-        AuthorUserDetails loggedUser = (AuthorUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        AuthorUserDetails loggedUser = (AuthorUserDetails) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-        model.addAttribute("currentUsername", loggedUser.getUsername());
-        model.addAttribute("post", new Post());
-
-        return "new_post";
+        return postService.prepareNewPostForm(model, loggedUser);
     }
 
     @PostMapping("/processForm")

@@ -1,8 +1,8 @@
 package net.croz.blog.blogweb.controller;
 
-import net.croz.blog.blogweb.comment.Comment;
+import net.croz.blog.blogweb.domain.Comment;
 import net.croz.blog.blogweb.service.CommentService;
-import net.croz.blog.blogweb.post.Post;
+import net.croz.blog.blogweb.domain.Post;
 import net.croz.blog.blogweb.service.PostService;
 import net.croz.blog.blogweb.security.AuthorUserDetails;
 import net.croz.blog.blogweb.repository.AuthorUserRepository;
@@ -17,32 +17,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class BlogPostController {
 
-    @Autowired
-    private AuthorUserRepository authorUserRepository;
-
     private PostService postService;
-    private CommentService commentService;
 
     @Autowired
-    public BlogPostController(PostService postService, CommentService commentService) {
+    public BlogPostController(PostService postService) {
         this.postService = postService;
-        this.commentService = commentService;
     }
 
     @RequestMapping(value = "/blog_post_{post.id}", method = RequestMethod.GET)
     public String openBlogPost(@PathVariable("post.id") String pathVariable, Model model) {
-        AuthorUserDetails loggedUser = (AuthorUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        authorUserRepository.findByUserName(loggedUser.getUsername()).orElse(null);
+        AuthorUserDetails loggedUser = (AuthorUserDetails) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-        model.addAttribute("currentUsername", loggedUser.getUsername());
-
-        Post post = postService.findById(Integer.valueOf(pathVariable));
-        model.addAttribute("blogPost", post);
-        if (!model.containsAttribute("comment")) {
-            model.addAttribute("comment", new Comment());
-        }
-        model.addAttribute("comments", commentService.findAllByPostId(post.getId()));
-
-        return "blog_post";
+        return postService.openBlogPost(model, loggedUser, pathVariable);
     }
 }

@@ -1,21 +1,22 @@
 package net.croz.blog.blogweb.service;
 
-import net.croz.blog.blogweb.author.Author;
-import net.croz.blog.blogweb.post.Post;
+import net.croz.blog.blogweb.domain.Author;
+import net.croz.blog.blogweb.domain.Comment;
+import net.croz.blog.blogweb.domain.Post;
 import net.croz.blog.blogweb.repository.PostRepository;
+import net.croz.blog.blogweb.search.SearchParams;
 import net.croz.blog.blogweb.security.AuthorUserDetails;
 import net.croz.blog.blogweb.repository.AuthorUserRepository;
-import net.croz.blog.blogweb.tag.Tag;
+import net.croz.blog.blogweb.domain.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
 import javax.persistence.criteria.Predicate;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +27,7 @@ public class PostServiceImpl implements PostService {
     private AuthorUserRepository authorUserRepository;
 
     private TagService tagService;
+    private CommentService commentService;
 
     private PostRepository postRepository;
     private final static String namePattern = "(\\S+)?\\s(\\S+)";
@@ -34,6 +36,11 @@ public class PostServiceImpl implements PostService {
     @Autowired
     public void setTagService(TagService tagService) {
         this.tagService = tagService;
+    }
+
+    @Autowired
+    public void setCommentService(CommentService commentService) {
+        this.commentService = commentService;
     }
 
     @Autowired
@@ -124,5 +131,93 @@ public class PostServiceImpl implements PostService {
             this.save(post);
             return "redirect:/";
         }
+    }
+
+    @Override
+    public String indexPage(Model model, AuthorUserDetails loggedUser) {
+        model.addAttribute("currentUsername", loggedUser.getUsername());
+
+        List<Post> posts = this.findAll();
+
+        //Show newest posts first
+        Collections.reverse(posts);
+
+        model.addAttribute("posts", posts);
+
+        return "index";
+    }
+
+    @Override
+    public String prepareNewPostForm(Model model, AuthorUserDetails loggedUser) {
+
+        model.addAttribute("currentUsername", loggedUser.getUsername());
+        model.addAttribute("post", new Post());
+
+        return "new_post";
+    }
+
+    @Override
+    public String processSearchForm(Model model, AuthorUserDetails loggedUser, SearchParams searchParams) {
+        model.addAttribute("currentUsername", loggedUser.getUsername());
+
+        // For autocompletion - not memory efficient!
+        model.addAttribute("allPosts", this.findAll());
+
+        List<Post> posts = this.getPosts(
+                searchParams.getDateFrom(),
+                searchParams.getDateTo(),
+                searchParams.getAuthorName(),
+                searchParams.getTitle(),
+                searchParams.getTagName()
+        );
+
+        // Newest posts are shown first
+        Collections.reverse(posts);
+
+        //Pagination implementation
+        int itemsPerPage = 5;
+        int currentPageNumber = 0;
+
+        PagedListHolder<Post> page = new PagedListHolder<>(posts);
+
+        try {
+            itemsPerPage = searchParams.getItemsNum().orElse(5);
+        } catch (Exception e) {
+            System.err.println("Error while getting items per page number - using 5 instead...");
+        }
+
+        page.setPageSize(itemsPerPage);
+
+        try {
+            currentPageNumber = searchParams.getPage().orElse(0);
+        } catch (Exception e) {
+            System.err.println("Error while getting page number - using 0 instead...");
+        }
+
+        page.setPage(currentPageNumber);
+
+        int totalPages = page.getPageCount();
+        List<Post> currentPosts = page.getPageList();
+
+        model.addAttribute("posts", currentPosts);
+        model.addAttribute("totalPages", String.valueOf(totalPages + 1));
+        model.addAttribute("currentPageNum", String.valueOf(currentPageNumber + 1));
+
+        return "search";
+    }
+
+    private String openBlogPost(Model model, AuthorUserDetails loggedUser, String pathVariable) {
+        authorUserRepository.findByUserName(loggedUser.getUsername()).orElse(null);
+
+        model.addAttribute("currentUsername", loggedUser.getUsername());
+
+        Post post = findById(Integer.valueOf(pathVariable));
+        model.addAttribute("blogPost", post);
+        if (!model.containsAttribute("comment")) {
+            model.addAttribute("comment", new Comment());
+        }
+        model.addAttribute("comments", commentService.findAllByPostId(post.getId()));
+
+        return "blog_post";
     }
 }

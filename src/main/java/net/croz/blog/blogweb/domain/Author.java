@@ -1,7 +1,7 @@
-package net.croz.blog.blogweb.author;
+package net.croz.blog.blogweb.domain;
 
-import net.croz.blog.blogweb.comment.Comment;
-import net.croz.blog.blogweb.post.Post;
+import net.croz.blog.blogweb.domain.Comment;
+import net.croz.blog.blogweb.domain.Post;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

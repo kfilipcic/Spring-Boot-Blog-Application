@@ -1,8 +1,7 @@
 package net.croz.blog.blogweb.service;
 
 import net.croz.blog.blogweb.repository.TagRepository;
-import net.croz.blog.blogweb.service.TagService;
-import net.croz.blog.blogweb.tag.Tag;
+import net.croz.blog.blogweb.domain.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

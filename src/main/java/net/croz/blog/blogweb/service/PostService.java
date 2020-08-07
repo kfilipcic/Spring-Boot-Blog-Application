@@ -1,9 +1,9 @@
 package net.croz.blog.blogweb.service;
 
-import net.croz.blog.blogweb.post.Post;
+import net.croz.blog.blogweb.domain.Post;
+import net.croz.blog.blogweb.search.SearchParams;
 import net.croz.blog.blogweb.security.AuthorUserDetails;
-import net.croz.blog.blogweb.tag.Tag;
-import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
 import java.util.Date;
@@ -22,4 +22,12 @@ public interface PostService {
     List<Post> getPosts(Optional<Date> dateFrom, Optional<Date> dateTo, Optional<String> authorFirstName, Optional<String> title, Optional<String> tagName);
 
     String createNewPost(Post post, AuthorUserDetails authorUserDetails, BindingResult result);
+
+    String indexPage(Model model, AuthorUserDetails loggedUser);
+
+    String prepareNewPostForm(Model model, AuthorUserDetails loggedUser);
+
+    String processSearchForm(Model model, AuthorUserDetails loggedUser, SearchParams searchParams);
+
+    String openBlogPost(Model model, AuthorUserDetails loggedUser, String pathVariable);
 }
