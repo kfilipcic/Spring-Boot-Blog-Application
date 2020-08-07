@@ -1,6 +1,8 @@
-package net.croz.blog.blogweb.security;
+package net.croz.blog.blogweb.service;
 
 import net.croz.blog.blogweb.author.Author;
+import net.croz.blog.blogweb.repository.AuthorUserRepository;
+import net.croz.blog.blogweb.security.AuthorUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

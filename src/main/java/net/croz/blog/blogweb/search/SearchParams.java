@@ -1,6 +1,10 @@
 package net.croz.blog.blogweb.search;
 
-import javax.persistence.Entity;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Optional;
 
 public class SearchParams {
@@ -9,9 +13,11 @@ public class SearchParams {
     private Optional<String> authorName;
     private Optional<String> title;
     private Optional<String> tagName;
-    private Optional<Integer> pageNumber;
+    private Optional<Integer> page;
 
-    public Optional<String> getDateFrom() {
+    private static DateFormat format = new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH);
+
+    public Optional<String> getDateFromString() {
         return dateFrom;
     }
 
@@ -19,7 +25,7 @@ public class SearchParams {
         this.dateFrom = dateFrom;
     }
 
-    public Optional<String> getDateTo() {
+    public Optional<String> getDateToString() {
         return dateTo;
     }
 
@@ -51,12 +57,12 @@ public class SearchParams {
         this.tagName = tagName;
     }
 
-    public Optional<Integer> getPageNumber() {
-        return pageNumber;
+    public Optional<Integer> getPage() {
+        return page;
     }
 
-    public void setPageNumber(Optional<Integer> pageNumber) {
-        this.pageNumber = pageNumber;
+    public void setPage(Optional<Integer> page) {
+        this.page = page;
     }
 
     public Optional<Integer> getItemsNum() {
@@ -68,4 +74,26 @@ public class SearchParams {
     }
 
     private Optional<Integer> itemsNum;
+
+    public Optional<Date> getDateFrom() {
+        if (dateFrom == null) return null;
+        if (!dateFrom.isPresent()) return null;
+        try {
+            return Optional.ofNullable(format.parse(dateFrom.get()));
+        } catch (ParseException e) {
+            System.err.println("Error parsing starting date.");
+        }
+        return null;
+    }
+
+    public Optional<Date> getDateTo() {
+        if (dateTo == null) return null;
+        if (!dateTo.isPresent()) return null;
+        try {
+            return Optional.ofNullable(format.parse(dateTo.get()));
+        } catch (ParseException e) {
+            System.err.println("Error parsing ending date.");
+        }
+        return null;
+    }
 }

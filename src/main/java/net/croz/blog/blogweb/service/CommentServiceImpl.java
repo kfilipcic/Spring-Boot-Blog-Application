@@ -1,5 +1,8 @@
-package net.croz.blog.blogweb.comment;
+package net.croz.blog.blogweb.service;
 
+import net.croz.blog.blogweb.comment.Comment;
+import net.croz.blog.blogweb.repository.CommentRepository;
+import net.croz.blog.blogweb.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

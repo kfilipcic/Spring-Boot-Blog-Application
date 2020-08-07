@@ -1,6 +1,7 @@
 package net.croz.blog.blogweb.security;
 
 import net.croz.blog.blogweb.author.Author;
+import net.croz.blog.blogweb.service.AuthorUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

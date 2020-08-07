@@ -1,7 +1,6 @@
-package net.croz.blog.blogweb.controllers;
-import net.croz.blog.blogweb.comment.CommentService;
+package net.croz.blog.blogweb.controller;
 import net.croz.blog.blogweb.post.Post;
-import net.croz.blog.blogweb.post.PostService;
+import net.croz.blog.blogweb.service.PostService;
 import net.croz.blog.blogweb.security.AuthorUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;

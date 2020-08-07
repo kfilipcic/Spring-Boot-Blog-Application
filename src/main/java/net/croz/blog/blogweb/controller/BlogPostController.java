@@ -1,12 +1,11 @@
-package net.croz.blog.blogweb.controllers;
+package net.croz.blog.blogweb.controller;
 
-import net.croz.blog.blogweb.author.Author;
 import net.croz.blog.blogweb.comment.Comment;
-import net.croz.blog.blogweb.comment.CommentService;
+import net.croz.blog.blogweb.service.CommentService;
 import net.croz.blog.blogweb.post.Post;
-import net.croz.blog.blogweb.post.PostService;
+import net.croz.blog.blogweb.service.PostService;
 import net.croz.blog.blogweb.security.AuthorUserDetails;
-import net.croz.blog.blogweb.security.AuthorUserRepository;
+import net.croz.blog.blogweb.repository.AuthorUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;

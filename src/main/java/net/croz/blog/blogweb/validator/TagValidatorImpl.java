@@ -1,4 +1,4 @@
-package net.croz.blog.blogweb.tag;
+package net.croz.blog.blogweb.validator;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

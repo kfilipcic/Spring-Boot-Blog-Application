@@ -1,4 +1,4 @@
-package net.croz.blog.blogweb.comment;
+package net.croz.blog.blogweb.repository;
 
 import net.croz.blog.blogweb.comment.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-package net.croz.blog.blogweb.security;
+package net.croz.blog.blogweb.repository;
 
 import net.croz.blog.blogweb.author.Author;
 import org.springframework.data.jpa.repository.JpaRepository;

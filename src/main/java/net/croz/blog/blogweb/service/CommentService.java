@@ -1,4 +1,4 @@
-package net.croz.blog.blogweb.comment;
+package net.croz.blog.blogweb.service;
 
 import net.croz.blog.blogweb.comment.Comment;
 
