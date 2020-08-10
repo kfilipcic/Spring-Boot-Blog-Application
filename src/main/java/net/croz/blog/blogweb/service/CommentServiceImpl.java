@@ -79,7 +79,7 @@ public class CommentServiceImpl implements CommentService {
         if (result.hasErrors()) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.comment", result);
             redirectAttributes.addFlashAttribute("comment", comment);
-            return "redirect:/blog_post_" + postId + "#comments";
+            return postId;
         }
 
         Post post = postService.findById(comment.getPost().getId());
@@ -87,7 +87,7 @@ public class CommentServiceImpl implements CommentService {
 
         comment.setDateCreated(new Date());
         this.save(comment);
-        return "redirect:/blog_post_" + postId + "#comments";
+        return postId;
     }
 
 }

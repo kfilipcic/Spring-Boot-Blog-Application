@@ -1,8 +1,8 @@
 package net.croz.blog.blogweb.controller;
 
 import net.croz.blog.blogweb.domain.Comment;
+import net.croz.blog.blogweb.request.CommentRequest;
 import net.croz.blog.blogweb.service.CommentService;
-import net.croz.blog.blogweb.service.PostService;
 import net.croz.blog.blogweb.security.AuthorUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,9 +24,9 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @PostMapping("/processComment")
+    @PostMapping("/blog/processComment")
     public String processComment(
-            @Valid @ModelAttribute("comment") Comment comment,
+            @Valid @ModelAttribute("comment") CommentRequest commentRequest,
             BindingResult result,
             RedirectAttributes redirectAttributes
     ) {
@@ -35,6 +35,11 @@ public class CommentController {
                 .getAuthentication()
                 .getPrincipal();
 
-        return commentService.createComment(comment, loggedUser, result, redirectAttributes);
+        String postId = commentService.createComment(new Comment(commentRequest),
+                                                loggedUser,
+                                                result,
+                                                redirectAttributes);
+
+        return "redirect:/blog/" + postId + "#comments";
     }
 }

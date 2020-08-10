@@ -1,6 +1,3 @@
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.Collections" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -141,7 +138,7 @@
                     <div class="media rounded border border-dark">
                         <div class="media-body" style="margin: 10px">
                             <h3 class="title mb-1"><a
-                                    href="${pageContext.request.contextPath}/blog_post_${post.id}">${post.title}</a>
+                                    href="${pageContext.request.contextPath}/blog/${post.id}">${post.title}</a>
                             </h3>
                             <div class="meta mb-1">Author: <span
                                     class="time">${post.author.firstName} ${post.author.lastName}</span>
@@ -151,11 +148,11 @@
                                     <fmt:formatDate value="${parsedDate}" pattern="dd.MM.yyyy"/>
                                 </span>
                                 <span class="comment"><a
-                                        href="${pageContext.request.contextPath}/blog_post_${post.id}#comment-section">${result.rows[0].num} comments</a></span>
+                                        href="${pageContext.request.contextPath}/blog/${post.id}#comment-section">${result.rows[0].num} comments</a></span>
                                 <c:if test="${not empty post.tag.name}"><span
                                         class="time">Tag: ${post.tag.name}</span></c:if></div>
                             <div class="intro">${post.content}</div>
-                            <a class="more-link" href="${pageContext.request.contextPath}/blog_post_${post.id}">Read
+                            <a class="more-link" href="${pageContext.request.contextPath}/blog/${post.id}">Read
                                 more &rarr;</a>
                         </div><!--//media-body-->
                     </div><!--//media-->

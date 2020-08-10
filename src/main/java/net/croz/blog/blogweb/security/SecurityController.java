@@ -1,6 +1,7 @@
 package net.croz.blog.blogweb.security;
 
 import net.croz.blog.blogweb.domain.Author;
+import net.croz.blog.blogweb.request.AuthorRequest;
 import net.croz.blog.blogweb.service.AuthorUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -47,7 +48,7 @@ public class SecurityController {
     }
 
     @PostMapping("/registrationProcessing")
-    public String loginPage(@Valid @ModelAttribute("userForm") Author author) {
-        return userDetailsService.registerUser(author);
+    public String loginPage(@Valid @ModelAttribute("userForm") AuthorRequest authorRequest) {
+        return userDetailsService.registerUser(new Author(authorRequest));
     }
 }

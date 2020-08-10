@@ -1,6 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
@@ -26,7 +25,7 @@
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.14.2/styles/monokai-sublime.min.css">
 
     <!-- Theme CSS -->
-    <link id="theme-style" rel="stylesheet" href="assets/css/theme-1.css">
+    <link id="theme-style" rel="stylesheet" href="../assets/css/theme-1.css">
 
     <style>
         .error {
@@ -55,14 +54,6 @@
     <article class="blog-post px-3 py-5 p-md-5">
 
         <div class="container">
-            <sql:setDataSource var="snapshot" driver="com.mysql.jdbc.Driver"
-                               url="jdbc:mysql://localhost:3306/blogdb2?useSSL=false"
-                               user="hbstudent" password="hbstudent"/>
-
-            <sql:query dataSource="${snapshot}" var="result">
-            select count(*) num from comment where post_id=${blogPost.id};
-            </sql:query>
-
             <header class="blog-post-header">
                 <h2 class="title mb-2">${blogPost.title}</h2>
                 <div class="meta mb-3">
@@ -72,7 +63,7 @@
                                            var="parsedDate"/>
 							<fmt:formatDate value="${parsedDate}" pattern="dd.MM.yyyy"/>
 						</span>
-                    <span class="comment"><a href="#comment-section">${result.rows[0].num} comments</a></span>
+                    <span class="comment"><a href="#comment-section">${commentsCount} comments</a></span>
                     <c:if test="${not empty blogPost.tag.name}"><span
                             class="time">Tag: ${blogPost.tag.name}</span></c:if></div>
             </header>

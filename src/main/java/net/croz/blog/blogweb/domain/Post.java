@@ -1,9 +1,19 @@
 package net.croz.blog.blogweb.domain;
 
+import net.croz.blog.blogweb.request.PostRequest;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Column;
+import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.CascadeType;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -82,6 +92,14 @@ public class Post {
         this.dateCreated = new Date();
     }
 
+    public Post(PostRequest postRequest) {
+        this.author = postRequest.getAuthor();
+        this.title = postRequest.getTitle();
+        this.content = postRequest.getContent();
+        this.tag = postRequest.getTag();
+        this.dateCreated = postRequest.getDateCreated();
+    }
+
     public int getId() {
         return id;
     }
@@ -114,12 +132,12 @@ public class Post {
         this.content = content;
     }
 
-    public Date getDateCreated() {
-        return dateCreated;
-    }
-
     public void setDateCreated(Date dateCreated) {
         this.dateCreated = dateCreated;
+    }
+
+    public Date getDateCreated() {
+        return dateCreated;
     }
 
     @Override

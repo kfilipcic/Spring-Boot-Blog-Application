@@ -1,10 +1,6 @@
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.Collections" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html>
@@ -54,20 +50,12 @@
     <h2 class="title text-center" style="margin-top: 50px" >Posts</h2>
     <section class="blog-list px-3 py-5 p-md-5">
         <div class="container">
-            <c:forEach var="post" items="${posts}">
-                <sql:setDataSource var="snapshot" driver="com.mysql.jdbc.Driver"
-                                   url="jdbc:mysql://localhost:3306/blogdb2?useSSL=false"
-                                   user="hbstudent" password="hbstudent"/>
-
-                <sql:query dataSource="${snapshot}" var="result">
-                    select count(*) num from comment where post_id=${post.id};
-                </sql:query>
-
+            <c:forEach var="post" items="${posts}" varStatus="loop">
                 <div class="item mb-5">
                     <div class="media rounded border border-dark">
                         <div class="media-body" style="margin: 10px">
                             <h3 class="title mb-1"><a
-                                    href="${pageContext.request.contextPath}/blog_post_${post.id}">${post.title}</a>
+                                    href="${pageContext.request.contextPath}/blog/${post.id}">${post.title}</a>
                             </h3>
                             <div class="meta mb-1">Author: <span
                                     class="time">${post.author.firstName} ${post.author.lastName}</span>
@@ -75,10 +63,10 @@
                                     <fmt:parseDate pattern="yyyy-MM-dd HH:mm:ss" value="${post.dateCreated}" var="parsedDate" />
                                     <fmt:formatDate value="${parsedDate}" pattern="dd.MM.yyyy" />
                                 </span>
-                                <span class="comment"><a href="${pageContext.request.contextPath}/blog_post_${post.id}#comment-section">${result.rows[0].num} comments</a></span>
+                                <span class="comment"><a href="${pageContext.request.contextPath}/blog/${post.id}#comment-section">${commentsCountList[loop.index]} comments</a></span>
                                 <c:if test="${not empty post.tag.name}"><span class="time">Tag: ${post.tag.name}</span></c:if></div>
                             <div class="intro">${post.content}</div>
-                            <a class="more-link" href="${pageContext.request.contextPath}/blog_post_${post.id}">Read
+                            <a class="more-link" href="${pageContext.request.contextPath}/blog/${post.id}">Read
                                 more &rarr;</a>
                         </div><!--//media-body-->
                     </div><!--//media-->

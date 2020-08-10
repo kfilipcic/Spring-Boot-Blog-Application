@@ -1,7 +1,6 @@
 package net.croz.blog.blogweb.service;
 
 import net.croz.blog.blogweb.domain.Author;
-import net.croz.blog.blogweb.domain.Comment;
 import net.croz.blog.blogweb.domain.Post;
 import net.croz.blog.blogweb.repository.PostRepository;
 import net.croz.blog.blogweb.search.SearchParams;
@@ -9,19 +8,23 @@ import net.croz.blog.blogweb.security.AuthorUserDetails;
 import net.croz.blog.blogweb.repository.AuthorUserRepository;
 import net.croz.blog.blogweb.domain.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.support.PagedListHolder;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
 public class PostServiceImpl implements PostService {
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private AuthorUserRepository authorUserRepository;
@@ -49,8 +52,20 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> findAll() {
-        return postRepository.findAll();
+    public List<Post> findAllReversed() {
+        List<Post> posts = postRepository.findAll();
+        Collections.reverse(posts);
+        return posts;
+    }
+
+    @Override
+    public List<Integer> everyPostCommentsCount() {
+        List<Integer> list = new ArrayList<>();
+        List<Post> posts = findAllReversed();
+        for (Post p : posts) {
+            list.add(commentService.findAllByPostId(p.getId()).size());
+        }
+        return list;
     }
 
     @Override
@@ -73,41 +88,64 @@ public class PostServiceImpl implements PostService {
         postRepository.deleteById(theId);
     }
 
-    public List<Post> getPosts(Optional<Date> dateFrom, Optional<Date> dateTo, Optional<String> authorName, Optional<String> title, Optional<String> tagName) {
-        List<Post> posts = postRepository.findAll((Specification<Post>) (root, cq, cb) -> {
-            Predicate p = cb.conjunction();
-            if(Objects.nonNull(dateFrom) && Objects.nonNull(dateTo) && dateFrom.get().before(dateTo.get())) {
-                p = cb.and(p, cb.between(root.get("dateCreated"), dateFrom.get(), dateTo.get()));
+    public PostsLong getCurrentPagePosts(Optional<Date> dateFrom,
+                                         Optional<Date> dateTo,
+                                         Optional<String> authorName,
+                                         Optional<String> title,
+                                         Optional<String> tagName,
+                                         int currentPageNumber,
+                                         int itemsPerPage) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Post> cq = cb.createQuery(Post.class);
+
+        Root<Post> root = cq.from(Post.class);
+        List<Predicate> p = new ArrayList<>();
+
+        if (Objects.nonNull(dateFrom) && Objects.nonNull(dateTo) && dateFrom.get().before(dateTo.get())) {
+            p.add(cb.between(root.get("dateCreated"), dateFrom.get(), dateTo.get()));
+        } else if (Objects.isNull(dateFrom) && Objects.nonNull(dateTo)) {
+            p.add(cb.lessThanOrEqualTo(root.get("dateCreated"), dateTo.get()));
+        } else if (Objects.isNull(dateTo) && Objects.nonNull(dateFrom)) {
+            p.add(cb.greaterThanOrEqualTo(root.get("dateCreated"), dateFrom.get()));
+        }
+        if (authorName != null && authorName.isPresent() && !authorName.get().isEmpty()) {
+            Matcher matcher = r.matcher(authorName.get());
+            if (matcher.find() && matcher.groupCount() == 2) {
+                p.add(cb.like(root.get("author").get("firstName"), matcher.group(1)));
+                p.add(cb.like(root.get("author").get("lastName"), matcher.group(2)));
+            } else {
+                p.add(cb.like(root.get("author").get("firstName"), authorName.get()));
+                p.add(cb.like(root.get("author").get("lastName"), authorName.get()));
             }
-            else if (Objects.isNull(dateFrom) && Objects.nonNull(dateTo)) {
-                p = cb.and(p, cb.lessThanOrEqualTo(root.get("dateCreated"), dateTo.get()));
-            }
-            else if (Objects.isNull(dateTo) && Objects.nonNull(dateFrom)) {
-                p = cb.and(p, cb.greaterThanOrEqualTo(root.get("dateCreated"), dateFrom.get()));
-            }
-            if(authorName != null && authorName.isPresent() && !authorName.get().isEmpty()) {
-                Matcher matcher = r.matcher(authorName.get());
-                if (matcher.find() && matcher.groupCount() == 2) {
-                    p = cb.and(p, cb.like(root.get("author").get("firstName"), matcher.group(1)));
-                    p = cb.and(p, cb.like(root.get("author").get("lastName"), matcher.group(2)));
-                } else {
-                    p = cb.and(p, cb.like(root.get("author").get("firstName"), authorName.get()));
-                    p = cb.or(p, cb.like(root.get("author").get("lastName"), authorName.get()));
-                }
-            }
-            if(title != null && title.isPresent() && !title.get().isEmpty()) {
-                p = cb.and(p, cb.like(root.get("title"), "%" + title.get() + "%"));
-            }
-            if(tagName != null && tagName.isPresent() && !tagName.get().isEmpty()) {
-                p = cb.and(p, cb.like(root.get("tag").get("name"), tagName.get()));
-            }
-            return p;
-        });
-        return posts;
+        }
+        if (title != null && title.isPresent() && !title.get().isEmpty()) {
+            p.add(cb.like(root.get("title"), "%" + title.get() + "%"));
+        }
+        if (tagName != null && tagName.isPresent() && !tagName.get().isEmpty()) {
+            p.add(cb.like(root.get("tag").get("name"), tagName.get()));
+        }
+
+        cq.where(p.toArray(new Predicate[0]));
+
+        // Sort by date (show newest posts first)
+        cq.orderBy(cb.desc(root.get("id")));
+
+        CriteriaQuery<Long> cql = cb.createQuery(Long.class);
+        cql.select(cb.count(cql.from(Post.class)));
+        cql.where(p.toArray(new Predicate[0]));
+
+        return new PostsLong(entityManager
+                .createQuery(cq)
+                .setFirstResult(currentPageNumber * itemsPerPage)
+                .setMaxResults(itemsPerPage)
+                .getResultList(),
+                entityManager
+                        .createQuery(cql)
+                        .getSingleResult());
     }
 
     @Override
-    public String createNewPost(Post post, AuthorUserDetails authorUserDetails, BindingResult result) {
+    public Boolean createNewPost(Post post, AuthorUserDetails authorUserDetails, BindingResult result) {
         Author currentAuthor = authorUserRepository.findByUserName(authorUserDetails.getUsername()).orElse(null);
 
         post.setAuthor(currentAuthor);
@@ -126,34 +164,22 @@ public class PostServiceImpl implements PostService {
             post.setTag(existingTag);
         }
         if (result.hasErrors()) {
-            return "new_post";
+            return false;
         } else {
             this.save(post);
-            return "redirect:/";
+            return true;
         }
     }
 
-    @Override
-    public String indexPage(Model model, AuthorUserDetails loggedUser) {
-        model.addAttribute("currentUsername", loggedUser.getUsername());
+    public Long getPostsCount(CriteriaBuilder criteriaBuilder) {
+        CriteriaQuery<Long> countQuery = criteriaBuilder
+                .createQuery(Long.class);
+        countQuery.select(criteriaBuilder.count(
+                countQuery.from(Post.class)));
+        Long count = entityManager.createQuery(countQuery)
+                .getSingleResult();
 
-        List<Post> posts = this.findAll();
-
-        //Show newest posts first
-        Collections.reverse(posts);
-
-        model.addAttribute("posts", posts);
-
-        return "index";
-    }
-
-    @Override
-    public String prepareNewPostForm(Model model, AuthorUserDetails loggedUser) {
-
-        model.addAttribute("currentUsername", loggedUser.getUsername());
-        model.addAttribute("post", new Post());
-
-        return "new_post";
+        return count;
     }
 
     @Override
@@ -161,24 +187,13 @@ public class PostServiceImpl implements PostService {
         model.addAttribute("currentUsername", loggedUser.getUsername());
 
         // For autocompletion - not memory efficient!
-        model.addAttribute("allPosts", this.findAll());
-
-        List<Post> posts = this.getPosts(
-                searchParams.getDateFrom(),
-                searchParams.getDateTo(),
-                searchParams.getAuthorName(),
-                searchParams.getTitle(),
-                searchParams.getTagName()
-        );
-
-        // Newest posts are shown first
-        Collections.reverse(posts);
+        model.addAttribute("allPosts", this.findAllReversed());
 
         //Pagination implementation
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+
         int itemsPerPage = 5;
         int currentPageNumber = 0;
-
-        PagedListHolder<Post> page = new PagedListHolder<>(posts);
 
         try {
             itemsPerPage = searchParams.getItemsNum().orElse(5);
@@ -186,38 +201,28 @@ public class PostServiceImpl implements PostService {
             System.err.println("Error while getting items per page number - using 5 instead...");
         }
 
-        page.setPageSize(itemsPerPage);
-
         try {
             currentPageNumber = searchParams.getPage().orElse(0);
         } catch (Exception e) {
             System.err.println("Error while getting page number - using 0 instead...");
         }
 
-        page.setPage(currentPageNumber);
+        PostsLong postsInteger = getCurrentPagePosts(
+                searchParams.getDateFrom(),
+                searchParams.getDateTo(),
+                searchParams.getAuthorName(),
+                searchParams.getTitle(),
+                searchParams.getTagName(),
+                currentPageNumber,
+                itemsPerPage
+        );
 
-        int totalPages = page.getPageCount();
-        List<Post> currentPosts = page.getPageList();
+        int totalPages = (int) -Math.floor(-((double)postsInteger.getCount() / (double) itemsPerPage));
 
-        model.addAttribute("posts", currentPosts);
+        model.addAttribute("posts", postsInteger.getPosts());
         model.addAttribute("totalPages", String.valueOf(totalPages + 1));
         model.addAttribute("currentPageNum", String.valueOf(currentPageNumber + 1));
 
         return "search";
-    }
-
-    private String openBlogPost(Model model, AuthorUserDetails loggedUser, String pathVariable) {
-        authorUserRepository.findByUserName(loggedUser.getUsername()).orElse(null);
-
-        model.addAttribute("currentUsername", loggedUser.getUsername());
-
-        Post post = findById(Integer.valueOf(pathVariable));
-        model.addAttribute("blogPost", post);
-        if (!model.containsAttribute("comment")) {
-            model.addAttribute("comment", new Comment());
-        }
-        model.addAttribute("comments", commentService.findAllByPostId(post.getId()));
-
-        return "blog_post";
     }
 }

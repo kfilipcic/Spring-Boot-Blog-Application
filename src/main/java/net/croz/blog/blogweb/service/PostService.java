@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostService {
-    List<Post> findAll();
+    List<Post> findAllReversed();
+
+    List<Integer> everyPostCommentsCount();
 
     Post findById(int theId);
 
@@ -19,15 +21,9 @@ public interface PostService {
 
     void deleteById(int theId);
 
-    List<Post> getPosts(Optional<Date> dateFrom, Optional<Date> dateTo, Optional<String> authorFirstName, Optional<String> title, Optional<String> tagName);
+    PostsLong getCurrentPagePosts(Optional<Date> dateFrom, Optional<Date> dateTo, Optional<String> authorFirstName, Optional<String> title, Optional<String> tagName, int currentPageNumber, int itemsPerPage);
 
-    String createNewPost(Post post, AuthorUserDetails authorUserDetails, BindingResult result);
-
-    String indexPage(Model model, AuthorUserDetails loggedUser);
-
-    String prepareNewPostForm(Model model, AuthorUserDetails loggedUser);
+    Boolean createNewPost(Post post, AuthorUserDetails authorUserDetails, BindingResult result);
 
     String processSearchForm(Model model, AuthorUserDetails loggedUser, SearchParams searchParams);
-
-    String openBlogPost(Model model, AuthorUserDetails loggedUser, String pathVariable);
 }

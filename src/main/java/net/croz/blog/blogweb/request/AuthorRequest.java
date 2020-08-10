@@ -1,58 +1,34 @@
-package net.croz.blog.blogweb.domain;
+package net.croz.blog.blogweb.request;
 
-import net.croz.blog.blogweb.request.AuthorRequest;
+import net.croz.blog.blogweb.domain.Comment;
+import net.croz.blog.blogweb.domain.Post;
 
-import javax.persistence.Entity;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Column;
-import javax.persistence.OneToMany;
-import javax.persistence.CascadeType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "author")
-public class Author {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+public class AuthorRequest {
     private int id;
 
-    @Column(name = "username")
     private String userName;
 
-    @Column(name = "password")
     private String password;
 
-    @Column(name = "active")
     private Boolean active = false;
 
-    @Column(name = "roles")
     private String roles;
 
     @NotNull(message = "is required")
     @Size(min=1, message = "is required")
-    @Column(name = "first_name")
     private String firstName;
 
     @NotNull(message = "is required")
     @Size(min=1, message = "is required")
-    @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "email")
     private String email;
 
-    @OneToMany(mappedBy = "author",
-    cascade = {CascadeType.DETACH,
-            CascadeType.MERGE,
-            CascadeType.PERSIST,
-            CascadeType.REFRESH})
     private List<Post> posts;
 
     public List<Comment> getComments() {
@@ -63,11 +39,6 @@ public class Author {
         this.comments = comments;
     }
 
-    @OneToMany(mappedBy = "author",
-            cascade = {CascadeType.DETACH,
-                    CascadeType.MERGE,
-                    CascadeType.PERSIST,
-                    CascadeType.REFRESH})
     private List<Comment> comments;
 
     public void addPost(Post post) {
@@ -84,22 +55,14 @@ public class Author {
         comments.add(comment);
     }
 
-    public Author(String firstName, String lastName, String email) {
+    public AuthorRequest(String firstName, String lastName, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
     }
 
-    public Author() {
+    public AuthorRequest() {
 
-    }
-
-    public Author(AuthorRequest authorRequest) {
-        this.firstName = authorRequest.getFirstName();
-        this.lastName = authorRequest.getLastName();
-        this.email = authorRequest.getEmail();
-        this.password = authorRequest.getPassword();
-        this.userName = authorRequest.getUserName();
     }
 
     public int getId() {

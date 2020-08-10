@@ -1,6 +1,17 @@
 package net.croz.blog.blogweb.domain;
 
-import javax.persistence.*;
+import net.croz.blog.blogweb.request.CommentRequest;
+
+import javax.persistence.Entity;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Column;
+import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.CascadeType;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -46,6 +57,19 @@ public class Comment {
         this.content = content;
 
         dateCreated = new Date();
+    }
+
+    public Comment(Author author, String content) {
+        this.author = author;
+        this.content = content;
+        dateCreated = new Date();
+    }
+
+    public Comment(CommentRequest commentRequest) {
+        this.author = commentRequest.getAuthor();
+        this.content = commentRequest.getContent();
+        this.post = commentRequest.getPost();
+        this.dateCreated = commentRequest.getDateCreated();
     }
 
     public int getId() {
