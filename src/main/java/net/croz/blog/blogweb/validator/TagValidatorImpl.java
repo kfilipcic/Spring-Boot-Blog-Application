@@ -17,8 +17,6 @@ public class TagValidatorImpl implements ConstraintValidator<TagValidator, Strin
     public boolean isValid(String string, ConstraintValidatorContext constraintValidatorContext) {
         int value = string.length();
         boolean v =  value >= min && value <= max;
-        System.out.println(v);
-        System.out.println("Tag name length: " + value);
         return value >= min && value <= max;
     }
 }

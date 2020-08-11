@@ -1,5 +1,7 @@
 package net.croz.blog.blogweb.search;
 
+import lombok.extern.log4j.Log4j2;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -7,6 +9,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Optional;
 
+@Log4j2
 public class SearchParams {
     private Optional<String> dateFrom;
     private Optional<String> dateTo;
@@ -81,7 +84,7 @@ public class SearchParams {
         try {
             return Optional.ofNullable(format.parse(dateFrom.get()));
         } catch (ParseException e) {
-            System.err.println("Error parsing starting date.");
+            log.error("Error parsing starting date");
         }
         return null;
     }
@@ -92,7 +95,7 @@ public class SearchParams {
         try {
             return Optional.ofNullable(format.parse(dateTo.get()));
         } catch (ParseException e) {
-            System.err.println("Error parsing ending date.");
+            log.error("Error parsing ending date");
         }
         return null;
     }

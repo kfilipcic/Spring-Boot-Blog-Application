@@ -1,5 +1,6 @@
 package net.croz.blog.blogweb.service;
 
+import lombok.extern.log4j.Log4j2;
 import net.croz.blog.blogweb.domain.Author;
 import net.croz.blog.blogweb.domain.Post;
 import net.croz.blog.blogweb.repository.PostRepository;
@@ -22,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
+@Log4j2
 public class PostServiceImpl implements PostService {
     @Autowired
     private EntityManager entityManager;
@@ -155,9 +157,6 @@ public class PostServiceImpl implements PostService {
         // Set the current date (it can't be null)
         post.setDateCreated(new Date());
 
-        // Check if tag already exists in database
-        System.out.println("tagService: " + tagService);
-
         Tag existingTag = this.tagService.findByName(tagName);
         if (existingTag != null) {
             // If the tag already exists, just make a reference to it
@@ -198,13 +197,13 @@ public class PostServiceImpl implements PostService {
         try {
             itemsPerPage = searchParams.getItemsNum().orElse(5);
         } catch (Exception e) {
-            System.err.println("Error while getting items per page number - using 5 instead...");
+            log.error("Error while getting items per page number - using 5 instead...");
         }
 
         try {
             currentPageNumber = searchParams.getPage().orElse(0);
         } catch (Exception e) {
-            System.err.println("Error while getting page number - using 0 instead...");
+            log.error("Error while getting page number - using 0 instead...");
         }
 
         PostsLong postsInteger = getCurrentPagePosts(
